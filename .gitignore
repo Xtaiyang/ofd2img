@@ -143,6 +143,5 @@ test/test
 .vscode/*
 test\testxml
 
-./test/*
 *.zip
 test/*
