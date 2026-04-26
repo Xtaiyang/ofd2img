@@ -7,7 +7,6 @@
 # note:  ofd 基础类
 import base64
 import os
-import sys
 from io import BytesIO
 from typing import Union
 

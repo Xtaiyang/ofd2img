@@ -6,8 +6,6 @@
 # AUTHOR: reno
 # NOTE: 每种类型的文件定义一个解析器
 
-import sys
-
 import logging
 import os
 import traceback

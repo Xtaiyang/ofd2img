@@ -7,8 +7,6 @@
 # NOTE: ofd解析主流程
 
 import os
-import sys
-
 from ofd2img.parser_ofd.file_ofd_parser import OFDFileParser
 
 import traceback
@@ -279,7 +277,7 @@ class OFDParser(object):
             document_res_xml_obj = self.get_xml_obj(document_res_name[0])
 
             doc_res_data = DocumentResFileParser(document_res_xml_obj)()
-            img_info = doc_res_data.get("muti_media", {})
+            img_info = doc_res_data.get("multi_media", {})
             doc_draw_params = doc_res_data.get("draw_params", {})
             draw_param_info.update(doc_draw_params)
 

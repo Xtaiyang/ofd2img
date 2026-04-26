@@ -17,14 +17,14 @@ class DocumentResFileParser(FileParserBase):
     """
 
     def __call__(self):
-        info = {"muti_media": {}, "draw_params": {}}
-        muti_media: list = []
-        muti_media_key = "ofd:MultiMedia"
-        self.recursion_ext(self.xml_obj, muti_media, muti_media_key)
-        if muti_media:
-            for media in muti_media:
+        info = {"multi_media": {}, "draw_params": {}}
+        multi_media: list = []
+        multi_media_key = "ofd:MultiMedia"
+        self.recursion_ext(self.xml_obj, multi_media, multi_media_key)
+        if multi_media:
+            for media in multi_media:
                 name = media.get("ofd:MediaFile", "") 
-                info["muti_media"][media.get("@ID")] = {
+                info["multi_media"][media.get("@ID")] = {
                     "format": media.get("@Format", ""),
                     "wrap_pos": media.get("@wrap_pos", ""),
                     # "Boundary": media.get("@Boundary", ""),

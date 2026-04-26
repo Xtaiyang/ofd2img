@@ -6,8 +6,6 @@
 # AUTHOR: reno
 # NOTE: base 解析器
 
-import sys
-
 import logging
 import os
 import traceback
