@@ -24,7 +24,7 @@ for font,names in font_map.items():
         except:
             logger.warning(f"FONT  registerFont failed {font}: {name}")
 
-from easyofd.parser_ofd.ofd_parser import OFDParser
+from ofd2img.parser_ofd.ofd_parser import OFDParser
 __all__=["OFDParser"]
                                     
 

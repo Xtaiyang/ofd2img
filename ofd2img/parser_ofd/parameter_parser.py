@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# PROJECT_NAME: easyofd
+# PROJECT_NAME: ofd2img
 # CREATE_TIME: 
 # E_MAIL: renoyuan@foxmail.com
 # AUTHOR: renoyuan

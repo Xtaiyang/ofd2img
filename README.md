@@ -5,7 +5,26 @@
 [![PyPI](https://img.shields.io/pypi/v/ofd2img)](https://pypi.org/project/ofd2img/)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 
-Forked from [easyofd](https://github.com/renoyuan/easyofd)，修改后遵循 Apache-2.0 许可证。
+Forked from [easyofd](https://github.com/renoyuan/easyofd)，并在其基础上进行了大量改造。本项目遵循 Apache-2.0 许可证。
+
+## 🛠️ 构建与开发
+
+本项目推荐使用 [uv](https://github.com/astral-sh/uv) 进行包管理。
+
+### 本地安装
+```bash
+uv pip install -e .
+```
+
+### 构建项目
+```bash
+uv build
+```
+
+### 发布到 PyPI
+```bash
+uv publish
+```
 
 ---
 

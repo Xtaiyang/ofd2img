@@ -2,14 +2,14 @@
 # -*- coding: utf-8 -*-
 """
 OFD 转 JPG 脚本
-使用 easyofd 库将 OFD 文件转换为 JPG 图片
+使用 ofd2img 库将 OFD 文件转换为 JPG 图片
 """
 import os
 import sys
 import base64
 
-# 添加 easyofd 库到路径
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "easyofd"))
+# 将当前目录添加到路径，以便在未安装的情况下使用 local ofd2img
+sys.path.insert(0, os.path.dirname(__file__))
 
 # 注册系统中可用的中文字体
 import subprocess
@@ -47,7 +47,7 @@ def register_system_fonts():
 # 注册字体
 # register_system_fonts()
 
-from easyofd.ofd import OFD
+from ofd2img.ofd import OFD
 
 def ofd_to_jpg(ofd_file_path):
     """
@@ -80,7 +80,7 @@ def ofd_to_jpg(ofd_file_path):
         # 转换为 JPG
         print("正在转换为 JPG...")
         # 尝试使用系统中可用的字体
-        from easyofd.draw.font_tools import FontTool
+        from ofd2img.draw.font_tools import FontTool
         font_tool = FontTool()
         print(f"系统可用字体: {font_tool.FONTS}")
         img_np = ofd.to_jpg()

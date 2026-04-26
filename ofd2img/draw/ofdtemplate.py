@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #-*- coding: utf-8 -*-
-#PROJECT_NAME: F:\code\easyofd\easyofd\draw
+#PROJECT_NAME: F:\code\ofd2img\ofd2img\draw
 #CREATE_TIME: 2023-10-30 
 #E_MAIL: renoyuan@foxmail.com
 #AUTHOR: reno 
@@ -175,7 +175,7 @@ class OFDTemplate(TemplateBase):
             "ofd:DocBody": [{
                 "ofd:DocInfo": {
                     "ofd:DocID": "0C1D4F7159954EEEDE517F7285E84DC4",
-                    "ofd:Creator": "easyofd",
+                    "ofd:Creator": "ofd2img",
                     "ofd:author": "renoyuan",
                     "ofd:authoremail": "renoyuan@foxmail.com",
                     "ofd:CreatorVersion": "1.0",
@@ -567,7 +567,7 @@ class OFDStructure(object):
 if  __name__ == "__main__":
     print("---------")
     # 资源文件
-    img_path = r"F:\code\easyofd\test\test_img0.jpg"
+    img_path = r"F:\code\ofd2img\test\test_img0.jpg"
     # with open(img_path, "rb") as f:
     #     content = f.read()
     content = b""

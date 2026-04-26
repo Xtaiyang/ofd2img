@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# PROJECT_NAME: E:\code\easyofd\easyofd\draw
+# PROJECT_NAME: E:\code\ofd2img\ofd2img\draw
 # CREATE_TIME: 2023-08-10
 # E_MAIL: renoyuan@foxmail.com
 # AUTHOR: reno
@@ -17,7 +17,7 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib.utils import ImageReader
 from reportlab.pdfgen import canvas
 
-from easyofd.draw.font_tools import FontTool
+from ofd2img.draw.font_tools import FontTool
 from .find_seal_img import SealExtract
 
 

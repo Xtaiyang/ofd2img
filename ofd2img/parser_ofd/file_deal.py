@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #-*- coding: utf-8 -*-
-#PROJECT_NAME: D:\code\easyofd\easyofd\parser
+#PROJECT_NAME: D:\code\ofd2img\ofd2img\parser
 #CREATE_TIME: 2023-07-27 
 #E_MAIL: renoyuan@foxmail.com
 #AUTHOR: reno 
@@ -82,7 +82,7 @@ class FileRead(object):
         return self.file_tree 
 
 if __name__ == "__main__":
-    with open(r"D:/code/easyofd/test/增值税电子专票5.ofd","rb") as f:
+    with open(r"D:/code/ofd2img/test/增值税电子专票5.ofd","rb") as f:
         ofdb64 = str(base64.b64encode(f.read()),"utf-8")
     a = FileRead(ofdb64)()
     print(list(a.keys()))

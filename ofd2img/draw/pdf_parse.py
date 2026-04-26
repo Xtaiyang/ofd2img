@@ -952,7 +952,7 @@ if __name__ == '__main__':
     # test_thread()
     # test_single()
     pdf_obj = DPFParser()
-    with open(r"F:\code\easyofd\test\test.pdf","rb") as f:
+    with open(r"F:\code\ofd2img\test\test.pdf","rb") as f:
         pdf_bytes = f.read()
 
     img_list = pdf_obj.to_img(pdf_bytes)

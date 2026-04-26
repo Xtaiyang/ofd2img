@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #-*- coding: utf-8 -*-
-#PROJECT_NAME: D:\code\easyofd\easyofd
+#PROJECT_NAME: D:\code\ofd2img\ofd2img
 #CREATE_TIME: 2023-07-27 
 #E_MAIL: renoyuan@foxmail.com
 #AUTHOR: reno 
@@ -47,7 +47,7 @@ import PIL
 from reportlab.lib.fonts import _tt2ps_map 
 from reportlab.lib.fonts import _family_alias 
 
-from easyofd.draw import FONTS
+from ofd2img.draw import FONTS
 
 from loguru import logger
 

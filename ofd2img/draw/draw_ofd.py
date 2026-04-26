@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# PROJECT_NAME: F:\code\easyofd\easyofd\draw
+# PROJECT_NAME: F:\code\ofd2img\ofd2img\draw
 # CREATE_TIME: 2023-10-26
 # E_MAIL: renoyuan@foxmail.com
 # AUTHOR: reno
@@ -271,7 +271,7 @@ class OFDWrite(object):
 
 if __name__ == "__main__":
     pdf_p = r"D:\renodoc\技术栈\GBT_33190-2016_电子文件存储与交换格式版式文档.pdf"
-    pdf_p = r"F:\code\easyofd\test"
+    pdf_p = r"F:\code\ofd2img\test"
     with open(pdf_p, "rb") as f:
         content = f.read()
 

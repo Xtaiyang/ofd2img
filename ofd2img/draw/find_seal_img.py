@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# PROJECT_NAME: easyofd read_seal_img
+# PROJECT_NAME: ofd2img read_seal_img
 # CREATE_TIME: 2024/5/28 14:13
 # E_MAIL: renoyuan@foxmail.com
 # AUTHOR: renoyuan
@@ -107,5 +107,5 @@ class SealExtract(object):
         return  img_list
 
 if __name__=="__main__":
-    print(SealExtract()(r"F:\code\easyofd\test\1111_xml\Doc_0\Signs\Sign_0\SignedValue.dat" ))
+    print(SealExtract()(r"F:\code\ofd2img\test\1111_xml\Doc_0\Signs\Sign_0\SignedValue.dat" ))
 

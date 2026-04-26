@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# PROJECT_NAME: F:\code\easyofd\easyofd
+# PROJECT_NAME: F:\code\ofd2img\ofd2img
 # CREATE_TIME: 2023-10-07
 # E_MAIL: renoyuan@foxmail.com
 # AUTHOR: reno
@@ -11,16 +11,13 @@ import sys
 from io import BytesIO
 from typing import Union
 
-sys.path.insert(0, os.getcwd())
-sys.path.insert(0, "..")
-
 import fitz
 
 from PIL import Image
 from loguru import logger
 
-from easyofd.parser_ofd import OFDParser
-from easyofd.draw import DrawPDF, OFDWrite
+from ofd2img.parser_ofd import OFDParser
+from ofd2img.draw import DrawPDF, OFDWrite
 
 
 class OFD(object):

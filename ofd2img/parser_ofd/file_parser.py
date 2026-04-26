@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# PROJECT_NAME: D:\code\easyofd\easyofd\parser
+# PROJECT_NAME: D:\code\ofd2img\ofd2img\parser
 # CREATE_TIME: 2023-07-27
 # E_MAIL: renoyuan@foxmail.com
 # AUTHOR: reno
@@ -8,7 +8,6 @@
 
 import sys
 
-sys.path.insert(0, "..")
 import logging
 import os
 import traceback

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# PROJECT_NAME: D:\code\easyofd\easyofd\parser
+# PROJECT_NAME: D:\code\ofd2img\ofd2img\parser
 # CREATE_TIME: 2023-07-27
 # E_MAIL: renoyuan@foxmail.com
 # AUTHOR: reno
@@ -9,9 +9,7 @@
 import os
 import sys
 
-from easyofd.parser_ofd.file_ofd_parser import OFDFileParser
-
-sys.path.insert(0, "..")
+from ofd2img.parser_ofd.file_ofd_parser import OFDFileParser
 
 import traceback
 import base64
@@ -129,7 +127,7 @@ class OFDParser(object):
             logger.warning(f"未安装jbig2dec，无法处理jb2文件")
             return
 
-        # todo ib2 转png C:/msys64/mingw64/bin/jbig2dec.exe -o F:\code\easyofd\test\image_80.png F:\code\easyofd\test\image_80.jb2
+        # todo ib2 转png C:/msys64/mingw64/bin/jbig2dec.exe -o F:\code\ofd2img\test\image_80.png F:\code\ofd2img\test\image_80.jb2
         fileName = img_d["fileName"]
         new_fileName = img_d['fileName'].replace(".jb2", ".png")
         with open(fileName, "wb") as f:
@@ -288,7 +286,7 @@ class OFDParser(object):
             # 找到图片b64
             for img_id, img_v in img_info.items():
                 img_v["imgb64"] = self.get_xml_obj(img_v.get("fileName"))
-                # todo ib2 转png C:/msys64/mingw64/bin/jbig2dec.exe -o F:\code\easyofd\test\image_80.png F:\code\easyofd\test\image_80.jb2
+                # todo ib2 转png C:/msys64/mingw64/bin/jbig2dec.exe -o F:\code\ofd2img\test\image_80.png F:\code\ofd2img\test\image_80.jb2
                 if img_v["suffix"] == 'jb2':
                     self.jb22png(img_v)
                 elif img_v["suffix"] == 'bmp':
@@ -483,6 +481,6 @@ class OFDParser(object):
 
 
 if __name__ == "__main__":
-    with open(r"E:\code\easyofd\test\增值税电子专票5.ofd", "rb") as f:
+    with open(r"E:\code\ofd2img\test\增值税电子专票5.ofd", "rb") as f:
         ofdb64 = str(base64.b64encode(f.read()), "utf-8")
     print(OFDParser(ofdb64)())
