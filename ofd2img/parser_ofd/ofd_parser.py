@@ -308,36 +308,26 @@ class OFDParser(object):
                     signature_xml_obj = self.get_xml_obj(BaseLoc)
                     # print(BaseLoc)
                     prefix = BaseLoc.split("/")[0]
-                    signatures_info = SignatureFileParser(signature_xml_obj)(prefix=prefix)
-                    # print(signatures_info)
-                    logger.debug(f"signatures_info {signatures_info}")
-                    PageRef = signatures_info.get("PageRef")
-                    Boundary = signatures_info.get("Boundary")
-                    SignedValue = signatures_info.get("SignedValue")
-                    sing_page_no = page_id_map.get(PageRef)
-                    # print("self.file_tree",self.file_tree.keys)
-                    # print(page_id_map,PageRef)
-                    # print(SignedValue, self.get_xml_obj(SignedValue))
-                    # with open("b64.txt","w") as f:
-                    #     f.write(self.get_xml_obj(SignedValue))
-                    if signatures_page_id.get(sing_page_no):
-                        signatures_page_id[sing_page_no].append(
-                            {
-                                "sing_page_no": sing_page_no,
-                                "PageRef": PageRef,
-                                "Boundary": Boundary,
-                                "SignedValue": self.get_xml_obj(SignedValue),
-                            }
-                        )
-                    else:
-                        signatures_page_id[sing_page_no] = [
-                            {
-                                "sing_page_no": sing_page_no,
-                                "PageRef": PageRef,
-                                "Boundary": Boundary,
-                                "SignedValue": self.get_xml_obj(SignedValue),
-                            }
-                        ]
+                    signatures_info_list = SignatureFileParser(signature_xml_obj)(prefix=prefix)
+                    # print(signatures_info_list)
+                    logger.debug(f"signatures_info_list {signatures_info_list}")
+                    for sig_info in signatures_info_list:
+                        PageRef = sig_info.get("PageRef")
+                        Boundary = sig_info.get("Boundary")
+                        SignedValue = sig_info.get("SignedValue")
+                        sing_page_no = page_id_map.get(PageRef)
+                        
+                        sig_dict = {
+                            "sing_page_no": sing_page_no,
+                            "PageRef": PageRef,
+                            "Boundary": Boundary,
+                            "SignedValue": self.get_xml_obj(SignedValue),
+                        }
+                        
+                        if signatures_page_id.get(sing_page_no):
+                            signatures_page_id[sing_page_no].append(sig_dict)
+                        else:
+                            signatures_page_id[sing_page_no] = [sig_dict]
 
         # 注释信息 按照页码信息
         annotation_info = {}

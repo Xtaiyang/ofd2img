@@ -95,26 +95,50 @@ class AnnotationFileParser(FileParserBase):
 
         if annot_res:
             for i in annot_res:
+                appearance = i.get("ofd:Appearance", {})
+                
+                # 处理 ImageObject
+                img_objs_raw = appearance.get("ofd:ImageObject")
+                if isinstance(img_objs_raw, dict):
+                    img_objs_raw = [img_objs_raw]
+                elif not img_objs_raw:
+                    img_objs_raw = []
+                
+                img_objects = []
+                for img_obj in img_objs_raw:
+                    img_objects.append({
+                        "ID": img_obj.get("@ID"),
+                        "ResourceID": img_obj.get("@ResourceID"),
+                        "Boundary": img_obj.get("@Boundary"),
+                        "CTM": img_obj.get("@CTM"),
+                    })
+                
+                # 处理 TextObject
+                text_objs_raw = appearance.get("ofd:TextObject")
+                if isinstance(text_objs_raw, dict):
+                    text_objs_raw = [text_objs_raw]
+                elif not text_objs_raw:
+                    text_objs_raw = []
+                    
+                text_objects = []
+                for text_obj in text_objs_raw:
+                    text_objects.append({
+                        "ID": text_obj.get("@ID"),
+                        "Boundary": text_obj.get("@Boundary"),
+                        "CTM": text_obj.get("@CTM"),
+                        "Size": text_obj.get("@Size"),
+                        "TextCode": text_obj.get("ofd:TextCode", {}),
+                    })
+
                 info[i.get("@ID")] = {
                     "AnnoType": self.AnnoType.get(i.get("@Type")),
                     "Appearance": {
-                        "Boundary": i.get("ofd:Appearance", {}).get("@Boundary"),
-                        "CTM": i.get("ofd:Appearance", {}).get("@CTM",""),
+                        "Boundary": appearance.get("@Boundary"),
+                        "CTM": appearance.get("@CTM", ""),
                     },
-                    "Content": i.get("ofd:Content", {}).get("@Text",""),
-                    "ImageObject": {
-                        "ID": i.get("ofd:Appearance", {}).get("ofd:ImageObject", {}).get("@ID"),
-                        "ResourceID": i.get("ofd:Appearance", {}).get("ofd:ImageObject", {}).get("@ResourceID"),
-                        "Boundary": i.get("ofd:Appearance", {}).get("ofd:ImageObject", {}).get("@Boundary"),
-                        "CTM": i.get("ofd:Appearance", {}).get("ofd:ImageObject", {}).get("@CTM"),
-                    },
-                    "TextObject": {
-                        "ID": i.get("ofd:Appearance", {}).get("ofd:TextObject", {}).get("@ID"),
-                        "Boundary": i.get("ofd:Appearance", {}).get("ofd:TextObject", {}).get("@Boundary"),
-                        "CTM": i.get("ofd:Appearance", {}).get("ofd:TextObject", {}).get("@CTM"),
-                        "Size": i.get("ofd:Appearance", {}).get("ofd:TextObject", {}).get("@Size"),
-                        "TextCode": i.get("ofd:Appearance", {}).get("ofd:TextObject", {}).get("ofd:TextCode", {}),
-                    },
+                    "Content": i.get("ofd:Content", {}).get("@Text", ""),
+                    "ImageObjects": img_objects,
+                    "TextObjects": text_objects,
                 }
         return info
 

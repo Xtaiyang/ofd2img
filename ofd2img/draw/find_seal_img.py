@@ -49,9 +49,12 @@ class SealExtract(object):
         if isinstance(asn1_data, univ.OctetString):
 
             octet_strings.append(asn1_data)
-        elif isinstance(asn1_data, univ.Sequence) or isinstance(asn1_data, univ.Set):
+        elif isinstance(asn1_data, (univ.Sequence, univ.Set)):
             for component in asn1_data:
                 self.find_octet_strings(asn1_data[f"{component}"], octet_strings)
+        elif isinstance(asn1_data, (univ.SequenceOf, univ.SetOf)):
+            for component in asn1_data:
+                self.find_octet_strings(component, octet_strings)
         elif isinstance(asn1_data, univ.Choice):
             self.find_octet_strings(asn1_data.getComponent(), octet_strings)
         elif isinstance(asn1_data, univ.Any):

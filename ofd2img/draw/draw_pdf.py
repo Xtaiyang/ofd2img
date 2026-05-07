@@ -9,6 +9,7 @@ import base64
 import os
 import re
 import traceback
+import math
 from io import BytesIO
 
 from PIL import Image as PILImage
@@ -279,6 +280,9 @@ class DrawPDF():
             # wrap_pos = img_d.get("wrap_pos")
             pos = img_d.get('pos')
             print("pos", pos,"wrap_pos", wrap_pos,"CTM", CTM)
+            is_stamp = img_d.get("is_stamp", False)
+            mask_val = [240, 255, 240, 255, 240, 255] if is_stamp else 'auto'
+            
             # CTM =None
             if CTM and not wrap_pos:
                 try:
@@ -297,7 +301,7 @@ class DrawPDF():
                     # 如果计算出来的 w, h 超过了 Boundary 的范围，则可能需要限制
                     # 但在这里，我们先完全信任 CTM
                     print(f"使用 CTM 绘制: {x} {y} {w} {h}")
-                    canvas.drawImage(imgReade, x, y, w, h, 'auto')
+                    canvas.drawImage(imgReade, x, y, w, h, mask=mask_val)
                 except Exception as ex:
                     logger.warning(f"使用 CTM 绘制失败: {ex}")
                     # 回退到默认逻辑
@@ -305,7 +309,7 @@ class DrawPDF():
                     y = (page_size[3] - pos[1]) * self.OP
                     w = pos[2] * self.OP
                     h = -pos[3] * self.OP
-                    canvas.drawImage(imgReade, x, y, w, h, 'auto')
+                    canvas.drawImage(imgReade, x, y, w, h, mask=mask_val)
             else:
                 x_offset = 0
                 y_offset = 0
@@ -319,13 +323,13 @@ class DrawPDF():
                     h = -img_d.get('pos')[3] * self.OP
 
                     # print(x, y, w, h)
-                    canvas.drawImage(imgReade, x, y, w, h, 'auto')
+                    canvas.drawImage(imgReade, x, y, w, h, mask=mask_val)
                 elif pos:
                     x = pos[0] * self.OP
                     y = (page_size[3] - pos[1]) * self.OP
                     w = pos[2] * self.OP
                     h = -pos[3] * self.OP
-                    canvas.drawImage(imgReade, x, y, w, h, 'auto')
+                    canvas.drawImage(imgReade, x, y, w, h, mask=mask_val)
 
     def draw_signature(self, canvas, signatures_page_list, page_size):
         """
@@ -342,23 +346,20 @@ class DrawPDF():
             if signatures_page_list:
                 # print("signatures_page_list",signatures_page_list)
                 for signature_info in signatures_page_list:
-                    image = SealExtract()(b64=signature_info.get("SignedValue"))
-                    if not image:
+                    images_extracted = SealExtract()(b64=signature_info.get("SignedValue"))
+                    if not images_extracted:
                         logger.info(f"提取不到签章图片")
                         continue
-                    else:
-                        image_pil = image[0]
-
+                        
                     pos = [float(i) for i in signature_info.get("Boundary").split(" ")]
-
-                    imgReade = ImageReader(image_pil)
-
                     x = pos[0] * self.OP
                     y = (page_size[3] - pos[1]) * self.OP
-
                     w = pos[2] * self.OP
                     h = -pos[3] * self.OP
-                    c.drawImage(imgReade, x, y, w, h, 'auto')
+
+                    for image_pil in images_extracted:
+                        imgReade = ImageReader(image_pil)
+                        c.drawImage(imgReade, x, y, w, h, mask=[240, 255, 240, 255, 240, 255])
                     print(f"签章写入成功")
             else:
                 # 无签章
@@ -663,91 +664,136 @@ class DrawPDF():
             # 同时支持 Stamp 和 Watermark 类型的注释
             if annotation.get("AnnoType") and (annotation.get("AnnoType").get("type") in ["Stamp", "Watermark"]):
                 # 处理图片对象
-                img_obj = annotation.get("ImageObject")
-                if img_obj and img_obj.get("ResourceID"):
-                    pos = img_obj.get("Boundary","").split(" ")
-                    pos = [float(i) for i in pos] if pos else []
-                    wrap_pos = annotation.get("Appearance", {}).get("Boundary","").split(" ")
-                    wrap_pos = [float(i) for i in wrap_pos] if wrap_pos else []
-                    CTM = img_obj.get("CTM","").split(" ")
-                    CTM = [float(i) for i in CTM] if CTM else []
-                    img_list.append({
-                        "wrap_pos": wrap_pos,
-                        "pos": pos,
-                        "CTM": CTM,
-                        "ResourceID": img_obj.get("ResourceID",""),
-                    })
+                img_objs = annotation.get("ImageObjects", [])
+                # 兼容旧格式
+                if not img_objs and annotation.get("ImageObject"):
+                    img_objs = [annotation.get("ImageObject")]
+                
+                for img_obj in img_objs:
+                    if img_obj and img_obj.get("ResourceID"):
+                        pos = img_obj.get("Boundary","").split(" ")
+                        pos = [float(i) for i in pos] if pos else []
+                        wrap_pos = annotation.get("Appearance", {}).get("Boundary","").split(" ")
+                        wrap_pos = [float(i) for i in wrap_pos] if wrap_pos else []
+                        CTM = img_obj.get("CTM","").split(" ")
+                        CTM = [float(i) for i in CTM] if CTM else []
+                        img_list.append({
+                            "wrap_pos": wrap_pos,
+                            "pos": pos,
+                            "CTM": CTM,
+                            "ResourceID": img_obj.get("ResourceID",""),
+                            "is_stamp": True,
+                        })
                 
                 # 处理文本对象（如下载次数）
-                text_obj = annotation.get("TextObject")
-                if text_obj:
-                    try:
-                        # 获取文本内容
-                        text_code = text_obj.get("TextCode", {})
-                        text = text_code.get("#text", "")
-                        if not text:
-                            continue
-                        
-                        # 获取位置信息
-                        # 使用 Appearance 的 Boundary 作为文本的位置
-                        appearance_boundary = annotation.get("Appearance", {}).get("Boundary", "").split(" ")
-                        if len(appearance_boundary) >= 4:
-                            # 解析 Appearance Boundary: x y width height
-                            x = float(appearance_boundary[0]) * self.OP
-                            y = (page_size[3] - (float(appearance_boundary[1]) + float(appearance_boundary[3]))) * self.OP
-                        else:
-                            # 如果没有 Appearance Boundary，使用 TextObject 的 Boundary
-                            boundary = text_obj.get("Boundary", "").split(" ")
-                            if len(boundary) >= 4:
-                                x = float(boundary[0]) * self.OP
-                                y = (page_size[3] - float(boundary[1])) * self.OP
+                text_objs = annotation.get("TextObjects", [])
+                # 兼容旧格式
+                if not text_objs and annotation.get("TextObject"):
+                    text_objs = [annotation.get("TextObject")]
+                    
+                for text_obj in text_objs:
+                    if text_obj:
+                        try:
+                            # 获取文本内容
+                            text_code = text_obj.get("TextCode", {})
+                            text = text_code.get("#text", "")
+                            if not text:
+                                continue
+                            
+                            # 获取位置信息
+                            # 使用 Appearance 的 Boundary 作为文本的位置
+                            appearance_boundary = annotation.get("Appearance", {}).get("Boundary", "").split(" ")
+                            if len(appearance_boundary) >= 4:
+                                # 解析 Appearance Boundary: x y width height
+                                x = float(appearance_boundary[0]) * self.OP
+                                y = (page_size[3] - (float(appearance_boundary[1]) + float(appearance_boundary[3]))) * self.OP
                             else:
-                                x = 0
-                                y = 0
-                        
-                        # 获取字体信息
-                        font_size = float(text_obj.get("Size", 10))
-                        
-                        # 设置字体和大小
-                        font = self.init_font
-                        c.setFont(font, font_size * self.OP)
-                        
-                        # 设置文本颜色为黑色
-                        c.setFillColorRGB(0, 0, 0)
-                        c.setStrokeColorRGB(0, 0, 0)
-                        
-                        # 处理 CTM 矩阵，支持旋转
-                        ctm = text_obj.get("CTM", "").split(" ")
-                        if len(ctm) == 6:
-                            try:
-                                a, b, ctm_c, d, e, f = [float(i) for i in ctm]
-                                # 保存当前状态
+                                # 如果没有 Appearance Boundary，使用 TextObject 的 Boundary
+                                boundary = text_obj.get("Boundary", "").split(" ")
+                                if len(boundary) >= 4:
+                                    x = float(boundary[0]) * self.OP
+                                    y = (page_size[3] - float(boundary[1])) * self.OP
+                                else:
+                                    x = 0
+                                    y = 0
+                            
+                            # 获取字体信息
+                            font_size = float(text_obj.get("Size", 10))
+                            
+                            # 设置字体和大小
+                            font = self.init_font
+                            c.setFont(font, font_size * self.OP)
+                            
+                            # 设置文本颜色为黑色
+                            c.setFillColorRGB(0, 0, 0)
+                            c.setStrokeColorRGB(0, 0, 0)
+                            
+                            # 处理 CTM 矩阵，支持旋转
+                            ctm = text_obj.get("CTM", "").split(" ")
+                            a, b, ctm_c, d, e, f = 1, 0, 0, 1, 0, 0
+                            if len(ctm) == 6:
+                                try:
+                                    a, b, ctm_c, d, e, f = [float(i) for i in ctm]
+                                except Exception as ex:
+                                    logger.warning(f"解析 CTM 失败: {ex}")
+                            
+                            # 获取字符间距和初始位置
+                            text_code_x = float(text_code.get("@X", 0))
+                            text_code_y = float(text_code.get("@Y", 0))
+                            delta_x_str = text_code.get("@DeltaX", "")
+                            delta_x_list = [float(i) for i in delta_x_str.split(" ") if i.strip()] if delta_x_str else []
+                            
+                            char_x = text_code_x
+                            char_y = text_code_y
+                            
+                            # CTM 对文本基线的旋转角度
+                            # OFD的Y向下，PDF的Y向上
+                            angle_rad = math.atan2(-b, a)
+                            angle_deg = math.degrees(angle_rad)
+                            
+                            for idx, char in enumerate(text):
+                                # 1. 本地坐标通过 CTM 映射
+                                x_ctm_space = a * char_x + ctm_c * char_y + e
+                                y_ctm_space = b * char_x + d * char_y + f
+                                
+                                # 2. 映射到 TextObject 自身的 Boundary
+                                text_boundary = text_obj.get("Boundary", "").split(" ")
+                                if len(text_boundary) >= 4:
+                                    x_obj_space = float(text_boundary[0]) + x_ctm_space
+                                    y_obj_space = float(text_boundary[1]) + y_ctm_space
+                                else:
+                                    x_obj_space = x_ctm_space
+                                    y_obj_space = y_ctm_space
+                                
+                                # 3. 映射到 Appearance 边界为原点的坐标系中 (加上 Appearance 边界的位置)
+                                if len(appearance_boundary) >= 4:
+                                    x_page = float(appearance_boundary[0]) + x_obj_space
+                                    y_page = float(appearance_boundary[1]) + y_obj_space
+                                else:
+                                    x_page = x_obj_space
+                                    y_page = y_obj_space
+                                    
+                                # 4. 映射到 PDF 坐标系 (Y 轴翻转并乘以 OP 缩放)
+                                pdf_x = x_page * self.OP
+                                pdf_y = (page_size[3] - y_page) * self.OP
+                                
                                 c.saveState()
-                                
-                                # 应用 CTM 变换
-                                c.transform(a, b, ctm_c, d, x + e * self.OP, y + f * self.OP)
-                                
-                                # 再旋转180度，修正文字方向
-                                c.rotate(180)
-                                
-                                # 调整文本位置，确保旋转后文字在正确的位置
-                                text_height = font_size * self.OP
-                                text_width = text_height * len(text)
-                                c.translate(-text_width, -text_height)
-                                
-                                # 绘制文本
-                                c.drawString(0, 0, text)
-                                
-                                # 恢复状态
+                                c.translate(pdf_x, pdf_y)
+                                c.rotate(angle_deg)
+                                c.drawString(0, 0, char)
                                 c.restoreState()
-                            except Exception as e:
-                                logger.warning(f"处理 CTM 变换失败: {e}")
-                                c.drawString(x, y, text)
-                        else:
-                            # 没有 CTM 信息，使用默认位置
-                            c.drawString(x, y, text)
-                    except Exception as e:
-                        logger.warning(f"处理文本对象失败: {e}")
+                                
+                                # 更新下一个字符的本地 X 坐标
+                                if idx < len(delta_x_list):
+                                    char_x += delta_x_list[idx]
+                                elif delta_x_list:
+                                    # 如果 DeltaX 数量少于字符数，通常取最后一个增量
+                                    char_x += delta_x_list[-1]
+                                else:
+                                    # 如果没有 DeltaX，默认加上字号
+                                    char_x += font_size
+                        except Exception as e:
+                            logger.warning(f"处理文本对象失败: {e}")
         
         # 绘制图片
         self.draw_img( canvas, img_list, images, page_size)

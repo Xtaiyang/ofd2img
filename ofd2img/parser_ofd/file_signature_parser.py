@@ -39,7 +39,7 @@ class SignatureFileParser(FileParserBase):
     """
 
     def __call__(self, prefix=""):
-        info = {}
+        info_list = []
         StampAnnot_res: list = []
         StampAnnot_res_key = "ofd:StampAnnot"
 
@@ -49,15 +49,13 @@ class SignatureFileParser(FileParserBase):
         SignedValue_res_key = "ofd:SignedValue"
         self.recursion_ext(self.xml_obj, SignedValue_res, SignedValue_res_key)
 
-        # print("SignedValue_res", SignedValue_res)
-        # print("prefix", prefix)
         if StampAnnot_res:
             for i in StampAnnot_res:
-                info = {
+                info_list.append({
                     "PageRef": i.get("@PageRef"),  # page id
                     "Boundary": i.get("@Boundary"),
                     "ID": i.get("@ID"),
                     "SignedValue": f"{prefix}/{SignedValue_res[0]}" if SignedValue_res else f"{prefix}/SignedValue.dat",
-                }
+                })
 
-        return info
+        return info_list
